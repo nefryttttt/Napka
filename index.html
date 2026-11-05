@@ -420,15 +420,34 @@
             if (file) processUpload(file);
         }
 
-        function processUpload(file) {
+        // Реальная загрузка на Telegra.ph API
+        async function processUpload(file) {
             dropZone.style.display = 'none';
             loadingState.style.display = 'block';
 
-            // Имитация загрузки (Замените на запрос к Cloudinary / Imgur API)
-            setTimeout(() => {
-                const imageUrl = URL.createObjectURL(file);
-                showResult(imageUrl);
-            }, 1200);
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('https://telegra.ph/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data && data[0] && data[0].src) {
+                    const imageUrl = 'https://telegra.ph' + data[0].src;
+                    showResult(imageUrl);
+                } else {
+                    alert('Не удалось загрузить изображение.');
+                    resetUpload();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка отправки файла на сервер.');
+                resetUpload();
+            }
         }
 
         function showResult(url) {

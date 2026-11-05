@@ -420,7 +420,7 @@
             if (file) processUpload(file);
         }
 
-        // Загрузка через Catbox.moe API
+        // Загрузка через обходник CORS для Catbox
         async function processUpload(file) {
             dropZone.style.display = 'none';
             loadingState.style.display = 'block';
@@ -430,7 +430,8 @@
             formData.append('fileToUpload', file);
 
             try {
-                const response = await fetch('https://catbox.moe/user/api.php', {
+                // Используем публичный прокси-сервер для решения проблемы с CORS
+                const response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://catbox.moe/user/api.php'), {
                     method: 'POST',
                     body: formData
                 });

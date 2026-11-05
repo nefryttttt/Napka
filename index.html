@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Napka - Image Hosting</title>
+    <title>wow</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -322,7 +322,7 @@
             <!-- Индикатор загрузки -->
             <div class="loading-state" id="loadingState">
                 <div class="spinner"></div>
-                <div style="text-align: center; font-weight: 500;">Загрузка изображения...</div>
+                <div style="text-align: center; font-weight: 500;">Оптимизация изображения...</div>
             </div>
 
             <!-- Результат -->
@@ -330,7 +330,7 @@
                 <div class="result-header">
                     <div class="status-badge">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        Успешно загружено!
+                        Успешно сгенерировано!
                     </div>
                     <button class="reset-btn" onclick="resetUpload()">+ Загрузить ещё</button>
                 </div>
@@ -338,7 +338,7 @@
                 <div class="preview-container">
                     <img src="" id="previewImg" class="preview-img" alt="Превью">
                     <div class="link-details">
-                        <div class="input-group-title">Прямая короткая ссылка</div>
+                        <div class="input-group-title">Короткая готовая ссылка</div>
                         <div class="input-row">
                             <input type="text" id="directUrl" class="url-input" readonly>
                             <button class="copy-btn" onclick="copyUrl()">
@@ -378,7 +378,7 @@
         dropZone.addEventListener('drop', (e) => {
             const files = e.dataTransfer.files;
             if (files.length > 0 && files[0].type.startsWith('image/')) {
-                uploadImage(files[0]);
+                compressAndProcess(files[0]);
             }
         });
 
@@ -388,7 +388,7 @@
             for (let item of items) {
                 if (item.type.indexOf('image') !== -1) {
                     const file = item.getAsFile();
-                    uploadImage(file);
+                    compressAndProcess(file);
                     break;
                 }
             }
@@ -396,45 +396,49 @@
 
         function handleFileSelect(event) {
             const file = event.target.files[0];
-            if (file) uploadImage(file);
+            if (file) compressAndProcess(file);
         }
 
-        // Загрузка через ImgBB API с обходом блокировок через прокси
-        async function uploadImage(file) {
+        // Локальное сжатие картинки и оптимизация длины Data URL
+        function compressAndProcess(file) {
             dropZone.style.display = 'none';
             loadingState.style.display = 'block';
 
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = async function () {
-                const base64Data = reader.result.split(',')[1];
+            reader.onload = function (e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
 
-                const formData = new FormData();
-                formData.append('key', '6d0007714d601d592dac873d2208d998');
-                formData.append('action', 'upload');
-                formData.append('source', base64Data);
-                formData.append('format', 'json');
-
-                try {
-                    // Используем бесплатный CORS-прокси для обхода блокировок РКН
-                    const response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://freeimage.host/api/1/upload'), {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const data = await response.json();
-
-                    if (data && data.status_code === 200 && data.image && data.image.url) {
-                        showResult(data.image.url);
-                    } else {
-                        alert('Ошибка загрузки. Попробуйте снова.');
-                        resetUpload();
+                    // Ограничиваем максимальный размер стороны до 800px для минимизации длины ссылки
+                    const maxSide = 800;
+                    if (width > maxSide || height > maxSide) {
+                        if (width > height) {
+                            height = Math.round((height * maxSide) / width);
+                            width = maxSide;
+                        } else {
+                            width = Math.round((width * maxSide) / height);
+                            height = maxSide;
+                        }
                     }
-                } catch (err) {
-                    console.error(err);
-                    alert('Ошибка сети при загрузке.');
-                    resetUpload();
-                }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Конвертируем в компактный JPEG со сжатием 0.75
+                    const compactDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+
+                    setTimeout(() => {
+                        showResult(compactDataUrl);
+                    }, 300);
+                };
             };
         }
 

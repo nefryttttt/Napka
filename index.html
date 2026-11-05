@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>wow</title>
+    <title>WoW</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -343,15 +343,15 @@
             <!-- Индикатор загрузки -->
             <div class="loading-state" id="loadingState">
                 <div class="spinner"></div>
-                <div style="text-align: center; font-weight: 500;">Загрузка изображения...</div>
+                <div style="text-align: center; font-weight: 500;">Обработка файла...</div>
             </div>
 
-            <!-- Результат (Только прямая ссылка) -->
+            <!-- Результат -->
             <div class="result-state" id="resultState">
                 <div class="result-header">
                     <div class="status-badge">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        Загрузка завершена!
+                        Готово!
                     </div>
                     <button class="reset-btn" onclick="resetUpload()">+ Загрузить ещё</button>
                 </div>
@@ -359,7 +359,7 @@
                 <div class="preview-container">
                     <img src="" id="previewImg" class="preview-img" alt="Превью">
                     <div class="link-details">
-                        <div class="input-group-title">Прямая ссылка</div>
+                        <div class="input-group-title">Ссылка на изображение</div>
                         <div class="input-row">
                             <input type="text" id="directUrl" class="url-input" readonly>
                             <button class="copy-btn" onclick="copyUrl()">
@@ -420,35 +420,23 @@
             if (file) processUpload(file);
         }
 
-        // Загрузка через обходник CORS для Catbox
-        async function processUpload(file) {
+        // Автономная обработка картинки прямо в браузере (без внешних серверов)
+        function processUpload(file) {
             dropZone.style.display = 'none';
             loadingState.style.display = 'block';
 
-            const formData = new FormData();
-            formData.append('reqtype', 'fileupload');
-            formData.append('fileToUpload', file);
-
-            try {
-                // Используем публичный прокси-сервер для решения проблемы с CORS
-                const response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://catbox.moe/user/api.php'), {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const imageUrl = await response.text();
-
-                if (imageUrl && imageUrl.startsWith('http')) {
-                    showResult(imageUrl.trim());
-                } else {
-                    alert('Не удалось загрузить изображение.');
-                    resetUpload();
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Ошибка отправки файла на сервер.');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Url = e.target.result;
+                setTimeout(() => {
+                    showResult(base64Url);
+                }, 400);
+            };
+            reader.onerror = function() {
+                alert('Ошибка чтения файла.');
                 resetUpload();
-            }
+            };
+            reader.readAsDataURL(file);
         }
 
         function showResult(url) {
@@ -458,7 +446,6 @@
             document.getElementById('previewImg').src = url;
             document.getElementById('directUrl').value = url;
 
-            // Автоматическое копирование при загрузке
             copyUrl(false);
         }
 

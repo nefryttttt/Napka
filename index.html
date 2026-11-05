@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>wow</title>
+    <title>Napka - Image Hosting</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -420,25 +420,25 @@
             if (file) processUpload(file);
         }
 
-        // Реальная загрузка на Telegra.ph API
+        // Загрузка через Catbox.moe API
         async function processUpload(file) {
             dropZone.style.display = 'none';
             loadingState.style.display = 'block';
 
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('reqtype', 'fileupload');
+            formData.append('fileToUpload', file);
 
             try {
-                const response = await fetch('https://telegra.ph/upload', {
+                const response = await fetch('https://catbox.moe/user/api.php', {
                     method: 'POST',
                     body: formData
                 });
 
-                const data = await response.json();
+                const imageUrl = await response.text();
 
-                if (data && data[0] && data[0].src) {
-                    const imageUrl = 'https://telegra.ph' + data[0].src;
-                    showResult(imageUrl);
+                if (imageUrl && imageUrl.startsWith('http')) {
+                    showResult(imageUrl.trim());
                 } else {
                     alert('Не удалось загрузить изображение.');
                     resetUpload();

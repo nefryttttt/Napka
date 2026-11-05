@@ -399,7 +399,7 @@
             if (file) uploadImage(file);
         }
 
-        // Загрузка через публичный API без токенов
+        // Загрузка через ImgBB API с обходом блокировок через прокси
         async function uploadImage(file) {
             dropZone.style.display = 'none';
             loadingState.style.display = 'block';
@@ -410,13 +410,14 @@
                 const base64Data = reader.result.split(',')[1];
 
                 const formData = new FormData();
-                formData.append('key', '6d0007714d601d592dac873d2208d998'); // Публичный дефолтный ключ API
+                formData.append('key', '6d0007714d601d592dac873d2208d998');
                 formData.append('action', 'upload');
                 formData.append('source', base64Data);
                 formData.append('format', 'json');
 
                 try {
-                    const response = await fetch('https://freeimage.host/api/1/upload', {
+                    // Используем бесплатный CORS-прокси для обхода блокировок РКН
+                    const response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://freeimage.host/api/1/upload'), {
                         method: 'POST',
                         body: formData
                     });
@@ -426,7 +427,7 @@
                     if (data && data.status_code === 200 && data.image && data.image.url) {
                         showResult(data.image.url);
                     } else {
-                        alert('Не удалось загрузить картинку. Попробуйте другой файл.');
+                        alert('Ошибка загрузки. Попробуйте снова.');
                         resetUpload();
                     }
                 } catch (err) {

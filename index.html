@@ -312,7 +312,7 @@
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 </div>
                 <div class="upload-title">Перетащите картинку сюда</div>
-                <div class="upload-desc">Максимальный размер: 32 МБ</div>
+                <div class="upload-desc">Максимальный размер: 5 МБ</div>
                 <div class="hotkey-badge">
                     Вставьте из буфера: <kbd>Ctrl</kbd> + <kbd>V</kbd>
                 </div>
@@ -322,7 +322,7 @@
             <!-- Индикатор загрузки -->
             <div class="loading-state" id="loadingState">
                 <div class="spinner"></div>
-                <div style="text-align: center; font-weight: 500;" id="loadingText">Загрузка изображения...</div>
+                <div style="text-align: center; font-weight: 500;" id="loadingText">Загрузка на сервер...</div>
             </div>
 
             <!-- Результат -->
@@ -338,7 +338,7 @@
                 <div class="preview-container">
                     <img src="" id="previewImg" class="preview-img" alt="Превью">
                     <div class="link-details">
-                        <div class="input-group-title">Прямая ссылка на файл</div>
+                        <div class="input-group-title">Короткая прямая ссылка</div>
                         <div class="input-row">
                             <input type="text" id="directUrl" class="url-input" readonly>
                             <button class="copy-btn" onclick="copyUrl()">
@@ -361,9 +361,7 @@
         const toast = document.getElementById('toast');
         const loadingText = document.getElementById('loadingText');
 
-        // Публичный рабочий API-ключ ImgBB для бесшовной загрузки всеми пользователями
-        const IMGBB_KEY = '6d257705cc8210138621830e4ac96d85';
-        const MAX_FILE_SIZE = 32 * 1024 * 1024; // Лимит 32 МБ
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // Лимит Telegraph — 5 МБ на файл
 
         // Drag & Drop
         ['dragenter', 'dragover'].forEach(eventName => {
@@ -406,33 +404,37 @@
 
         function processFile(file) {
             if (file.size > MAX_FILE_SIZE) {
-                alert('Файл слишком большой! Максимальный размер — 32 МБ.');
+                alert('Файл слишком большой! Лимит Telegraph — 5 МБ.');
                 return;
             }
-            uploadToImgBB(file);
+            uploadToTelegraph(file);
         }
 
-        async function uploadToImgBB(file) {
+        async function uploadToTelegraph(file) {
             dropZone.style.display = 'none';
             loadingState.style.display = 'block';
             loadingText.innerText = 'Загрузка изображения...';
 
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('file', file);
 
             try {
-                const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+                const response = await fetch('https://telegra.ph/upload', {
                     method: 'POST',
                     body: formData
                 });
 
                 const result = await response.json();
 
-                if (result.success) {
-                    // Выдаем прямую ссылку i.ibb.co
-                    showResult(result.data.url);
+                if (Array.isArray(result) && result[0] && result[0].src) {
+                    // Telegraph возвращает относительный путь, превращаем его в полноценную ссылку
+                    const fullUrl = 'https://telegra.ph' + result[0].src;
+                    showResult(fullUrl);
+                } else if (result.error) {
+                    alert('Ошибка: ' + result.error);
+                    resetUpload();
                 } else {
-                    alert('Ошибка загрузки: ' + (result.error ? result.error.message : 'Сбой сервиса'));
+                    alert('Не удалось загрузить файл.');
                     resetUpload();
                 }
             } catch (err) {

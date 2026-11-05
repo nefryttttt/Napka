@@ -54,7 +54,7 @@
             width: 100%;
             max-width: 800px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             padding: 20px 0;
         }
@@ -80,22 +80,6 @@
             box-shadow: 0 0 15px var(--primary-glow);
         }
 
-        .settings-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-
-        .settings-btn:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
         main {
             width: 100%;
             max-width: 650px;
@@ -111,56 +95,6 @@
             padding: 40px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
             position: relative;
-        }
-
-        .settings-panel {
-            display: none;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-        }
-
-        .settings-panel.active {
-            display: block;
-        }
-
-        .settings-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #fff;
-        }
-
-        .settings-desc {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-
-        .settings-input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 10px 12px;
-            color: #fff;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
-            outline: none;
-        }
-
-        .save-settings-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
         }
 
         .upload-area {
@@ -368,22 +302,12 @@
             </div>
             Napka 
         </a>
-        <button class="settings-btn" onclick="toggleSettings()">⚙️ Настройки</button>
     </header>
 
     <main>
         <div class="card">
-            <!-- Панель скрытых настроек токена -->
-            <div class="settings-panel" id="settingsPanel">
-                <div class="settings-title">Конфигурация GitHub</div>
-                <div class="settings-desc">Токен хранится локально в вашем браузере и никогда не публикуется в коде сайта.</div>
-                <input type="text" id="repoInput" class="settings-input" placeholder="Репозиторий (например: nefryttttt/nefryttttt.github.io)">
-                <input type="password" id="tokenInput" class="settings-input" placeholder="GitHub Token (ghp_...)">
-                <button class="save-settings-btn" onclick="saveSettings()">Сохранить</button>
-            </div>
-
             <!-- Зона загрузки -->
-            <div class="upload-area" id="dropZone" onclick="checkTokenAndTrigger()">
+            <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 </div>
@@ -398,7 +322,7 @@
             <!-- Индикатор загрузки -->
             <div class="loading-state" id="loadingState">
                 <div class="spinner"></div>
-                <div style="text-align: center; font-weight: 500;">Загрузка в репозиторий...</div>
+                <div style="text-align: center; font-weight: 500;">Загрузка изображения...</div>
             </div>
 
             <!-- Результат -->
@@ -435,47 +359,6 @@
         const loadingState = document.getElementById('loadingState');
         const resultState = document.getElementById('resultState');
         const toast = document.getElementById('toast');
-        const settingsPanel = document.getElementById('settingsPanel');
-
-        // Проверяем наличие сохраненных данных при открытии
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedRepo = localStorage.getItem('gh_repo');
-            const savedToken = localStorage.getItem('gh_token');
-            if (savedRepo) document.getElementById('repoInput').value = savedRepo;
-            if (savedToken) document.getElementById('tokenInput').value = savedToken;
-            
-            if (!savedRepo || !savedToken) {
-                settingsPanel.classList.add('active');
-            }
-        });
-
-        function toggleSettings() {
-            settingsPanel.classList.toggle('active');
-        }
-
-        function saveSettings() {
-            const repo = document.getElementById('repoInput').value.trim();
-            const token = document.getElementById('tokenInput').value.trim();
-            if (!repo || !token) {
-                alert('Заполните оба поля!');
-                return;
-            }
-            localStorage.setItem('gh_repo', repo);
-            localStorage.setItem('gh_token', token);
-            settingsPanel.classList.remove('active');
-            alert('Настройки успешно сохранены!');
-        }
-
-        function checkTokenAndTrigger() {
-            const repo = localStorage.getItem('gh_repo');
-            const token = localStorage.getItem('gh_token');
-            if (!repo || !token) {
-                settingsPanel.classList.add('active');
-                alert('Сначала укажите репозиторий и токен в настройках!');
-                return;
-            }
-            document.getElementById('fileInput').click();
-        }
 
         // Drag & Drop
         ['dragenter', 'dragover'].forEach(eventName => {
@@ -493,30 +376,19 @@
         });
 
         dropZone.addEventListener('drop', (e) => {
-            const repo = localStorage.getItem('gh_repo');
-            const token = localStorage.getItem('gh_token');
-            if (!repo || !token) {
-                settingsPanel.classList.add('active');
-                alert('Укажите настройки GitHub!');
-                return;
-            }
             const files = e.dataTransfer.files;
             if (files.length > 0 && files[0].type.startsWith('image/')) {
-                uploadToGitHub(files[0]);
+                uploadImage(files[0]);
             }
         });
 
         // Ctrl + V
         document.addEventListener('paste', (e) => {
-            const repo = localStorage.getItem('gh_repo');
-            const token = localStorage.getItem('gh_token');
-            if (!repo || !token) return;
-
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (let item of items) {
                 if (item.type.indexOf('image') !== -1) {
                     const file = item.getAsFile();
-                    uploadToGitHub(file);
+                    uploadImage(file);
                     break;
                 }
             }
@@ -524,48 +396,42 @@
 
         function handleFileSelect(event) {
             const file = event.target.files[0];
-            if (file) uploadToGitHub(file);
+            if (file) uploadImage(file);
         }
 
-        async function uploadToGitHub(file) {
-            const repo = localStorage.getItem('gh_repo');
-            const token = localStorage.getItem('gh_token');
-
+        // Загрузка через публичный API без токенов
+        async function uploadImage(file) {
             dropZone.style.display = 'none';
             loadingState.style.display = 'block';
 
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async function () {
-                const base64Content = reader.result.split(',')[1];
-                const fileName = 'img_' + Date.now() + '.' + file.name.split('.').pop();
-                const path = 'uploads/' + fileName;
+                const base64Data = reader.result.split(',')[1];
+
+                const formData = new FormData();
+                formData.append('key', '6d0007714d601d592dac873d2208d998'); // Публичный дефолтный ключ API
+                formData.append('action', 'upload');
+                formData.append('source', base64Data);
+                formData.append('format', 'json');
 
                 try {
-                    const response = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            message: `Upload image ${fileName}`,
-                            content: base64Content
-                        })
+                    const response = await fetch('https://freeimage.host/api/1/upload', {
+                        method: 'POST',
+                        body: formData
                     });
 
                     const data = await response.json();
 
-                    if (response.ok) {
-                        const rawUrl = `https://raw.githubusercontent.com/${repo}/main/${path}`;
-                        showResult(rawUrl);
+                    if (data && data.status_code === 200 && data.image && data.image.url) {
+                        showResult(data.image.url);
                     } else {
-                        alert('Ошибка GitHub API: ' + (data.message || 'Не удалось загрузить'));
+                        alert('Не удалось загрузить картинку. Попробуйте другой файл.');
                         resetUpload();
                     }
                 } catch (err) {
                     console.error(err);
-                    alert('Ошибка сети при загрузке на GitHub.');
+                    alert('Ошибка сети при загрузке.');
                     resetUpload();
                 }
             };

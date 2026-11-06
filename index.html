@@ -110,14 +110,14 @@
       border-color: #5865f2;
     }
 
-    /* Image Preview */
+    /* Media Preview */
     .preview-container {
       margin-top: 15px;
       text-align: center;
     }
-    .preview-img {
+    .preview-img, .preview-video {
       max-width: 100%;
-      max-height: 200px;
+      max-height: 250px;
       border-radius: 8px;
       border: 1px solid #373a40;
       object-fit: contain;
@@ -157,10 +157,10 @@
       <h1 class="title">Upload files</h1>
       
       <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-        <p>Drop your image here or click to browse</p>
+        <p>Drop image or video here or click to browse</p>
       </div>
       
-      <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFile(this.files[0])">
+      <input type="file" id="fileInput" accept="image/*,video/*" class="hidden" onchange="handleFile(this.files[0])">
 
       <div id="status" class="status-text"></div>
       <div id="result"></div>
@@ -201,16 +201,25 @@
 
       const status = document.getElementById('status');
       const result = document.getElementById('result');
-      status.innerText = 'Uploading...';
       result.innerHTML = '';
+
+      // Строго проверяем лимит Vercel (около 4.5 МБ в байтах), чтобы сайт не зависал
+      const MAX_SIZE = 4.5 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        status.innerText = 'Error: File is too large (max 4.5MB limit)';
+        return;
+      }
+
+      status.innerText = 'Uploading...';
 
       const reader = new FileReader();
 
       reader.onload = async () => {
-        const base64Content = reader.result.split(',')[1];
-        const filename = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-
         try {
+          const base64Content = reader.result.split(',')[1];
+          const ext = file.name.split('.').pop();
+          const filename = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
+
           const res = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -220,25 +229,40 @@
             })
           });
 
-          const data = await res.json();
+          // Безопасно парсим ответ, чтобы не ловить зависания
+          let data;
+          try {
+            data = await res.json();
+          } catch (e) {
+            throw new Error('Server response error (file might be too large)');
+          }
 
           if (res.ok && data.url) {
             status.innerText = 'Upload complete!';
             
             navigator.clipboard.writeText(data.url).catch(() => {});
 
+            const isVideo = file.type.startsWith('video/');
+            const previewHTML = isVideo 
+              ? `<video src="${data.url}" class="preview-video" controls autoplay muted loop></video>`
+              : `<img src="${data.url}" class="preview-img" alt="Uploaded preview">`;
+
             result.innerHTML = `
               <input type="text" class="result-input" value="${data.url}" readonly onclick="navigator.clipboard.writeText(this.value); const s=document.getElementById('status'); s.innerText='Link copied!'; setTimeout(()=>s.innerText='Upload complete!', 2000);" title="Click to copy link">
               <div class="preview-container">
-                <img src="${data.url}" class="preview-img" alt="Uploaded preview">
+                ${previewHTML}
               </div>
             `;
           } else {
             status.innerText = 'Error: ' + (data.error || 'Failed to upload');
           }
         } catch (err) {
-          status.innerText = 'Network error: ' + err.message;
+          status.innerText = 'Error: ' + err.message;
         }
+      };
+
+      reader.onerror = () => {
+        status.innerText = 'Error reading file';
       };
 
       reader.readAsDataURL(file);

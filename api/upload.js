@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -8,17 +7,17 @@ export default async function handler(req, res) {
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
+  // Сразу отвечаем на preflight-запрос OPTIONS
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(200).end();
   }
 
   try {
-    const { filename, content } = req.body;
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const { filename, content } = req.body || {};
     if (!filename || !content) {
       return res.status(400).json({ error: 'No data provided' });
     }
@@ -26,6 +25,10 @@ export default async function handler(req, res) {
     const repo = 'nefryttttt/Napka';
     const path = `uploads/${filename}`;
     const token = process.env.GH_TOKEN;
+
+    if (!token) {
+      return res.status(500).json({ error: 'GH_TOKEN is not configured in Vercel environment variables' });
+    }
 
     const response = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
       method: 'PUT',
@@ -49,6 +52,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: data.message || 'GitHub Error' });
     }
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message || 'Internal Server Error' });
   }
 }

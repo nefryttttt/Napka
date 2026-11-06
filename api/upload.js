@@ -1,5 +1,5 @@
 module.exports = async (req, res) => {
-  // Жестко выставляем CORS-заголовки в самом начале
+
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
-  // Сразу отвечаем на OPTIONS-запрос
+
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }

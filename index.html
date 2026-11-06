@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Napka</title>
-  
 
   <link rel="icon" href="https://raw.githubusercontent.com/nefryttttt/Napka/main/uploads/favicon.png" type="image/png">
   
@@ -18,7 +17,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      /* Подняли меню выше за счет flex-start и отступа сверху */
+      justify-content: flex-start;
+      padding-top: 8vh;
     }
 
     .container {
@@ -27,7 +28,7 @@
       padding: 20px;
     }
 
-    /* Навигация / Шапка */
+    /* Шапка */
     .header {
       display: flex;
       align-items: center;
@@ -45,6 +46,7 @@
       font-size: 24px;
       font-weight: 700;
     }
+    /* Стили для логотипа (картинки вместо молнии) */
     .brand img {
       width: 32px;
       height: 32px;
@@ -86,20 +88,6 @@
       font-size: 15px;
     }
 
-    /* Кнопки и результат */
-    .btn {
-      background: #25262b;
-      color: #e4e4e7;
-      border: 1px solid #373a40;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: background 0.2s;
-    }
-    .btn:hover { background: #2c2e33; }
-    
     .status-text {
       margin-top: 15px;
       font-size: 14px;
@@ -119,12 +107,11 @@
       outline: none;
     }
 
-    /* Футер с ссылкой на GitHub */
+    /* Футер */
     .footer {
       margin-top: 24px;
       text-align: center;
       font-size: 14px;
-      color: #5c5f66;
     }
     .footer a {
       color: #909296;
@@ -141,10 +128,11 @@
 <body>
 
   <div class="container">
-    <!-- Шапка в стиле hapka.lol -->
+    <!-- Шапка: здесь можно заменить ссылку на картинку или вернуть эмодзи -->
     <header class="header">
       <a href="#" class="brand">
-        ⚡ <span>Napka</span>
+        <img src="https://raw.githubusercontent.com/nefryttttt/Napka/main/uploads/logo.png" alt="logo">
+        <span>Napka</span>
       </a>
     </header>
 
@@ -172,7 +160,6 @@
     const API_URL = 'https://napka-api.vercel.app/api/upload';
     const dropZone = document.getElementById('dropZone');
 
-    // Drag & Drop события
     ['dragenter', 'dragover'].forEach(eventName => {
       dropZone.addEventListener(eventName, (e) => {
         e.preventDefault();
@@ -193,7 +180,6 @@
       if (files.length > 0) handleFile(files[0]);
     });
 
-    // Обработка и отправка файла на Vercel API
     async function handleFile(file) {
       if (!file) return;
 

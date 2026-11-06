@@ -55,4 +55,4 @@ module.exports = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Internal Server Error' });
   }
-};
+}; 

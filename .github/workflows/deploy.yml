@@ -18,13 +18,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        
+      - name: Prepare site folder
+        run: |
+          mkdir _site
+          cp index.html _site/
+          # Если в корне есть фавиконка или логотип, добавь их сюда же через cp (если нет, эта строка не помешает):
+          # cp favicon.png _site/ || true
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # Указываем текущую папку с index.html
+          path: '_site'
 
   deploy:
     environment:

@@ -1,4 +1,5 @@
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
+  // Жестко выставляем CORS-заголовки в самом начале
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -7,7 +8,7 @@ export default async function handler(req, res) {
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
-  // Сразу отвечаем на preflight-запрос OPTIONS
+  // Сразу отвечаем на OPTIONS-запрос
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -27,7 +28,7 @@ export default async function handler(req, res) {
     const token = process.env.GH_TOKEN;
 
     if (!token) {
-      return res.status(500).json({ error: 'GH_TOKEN is not configured in Vercel environment variables' });
+      return res.status(500).json({ error: 'GH_TOKEN is not configured' });
     }
 
     const response = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
@@ -54,4 +55,4 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Internal Server Error' });
   }
-}
+};

@@ -1,473 +1,239 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Napka</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="https://raw.githubusercontent.com/nefryttttt/Napka/main/uploads/favicon.png" type="image/png">
-    <style>
-        :root {
-            --bg-color: #0b0d14;
-            --card-bg: rgba(22, 27, 46, 0.6);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --primary-glow: rgba(99, 102, 241, 0.35);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --success: #10b981;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Napka</title>
+  
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
+  <link rel="icon" href="https://raw.githubusercontent.com/nefryttttt/Napka/main/uploads/favicon.png" type="image/png">
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #121316;
+      color: #e4e4e7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            overflow-x: hidden;
-            position: relative;
-        }
+    .container {
+      width: 100%;
+      max-width: 520px;
+      padding: 20px;
+    }
 
-        .background-glow {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.05) 50%, rgba(0,0,0,0) 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
+    /* Навигация / Шапка */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #5865f2;
+      margin-bottom: 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
 
-        header {
-            width: 100%;
-            max-width: 800px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px 0;
-        }
+    /* Карточка загрузки */
+    .card {
+      background: #1a1b1e;
+      border: 1px solid #2c2e33;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+    
+    /* Зона Dropzone */
+    .drop-zone {
+      border: 2px dashed #3b3e45;
+      border-radius: 8px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #141517;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: #5865f2;
+      background: #18191c;
+    }
+    .drop-zone p {
+      color: #909296;
+      font-size: 15px;
+    }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            font-size: 1.4rem;
-            color: #fff;
-            text-decoration: none;
-        }
+    /* Кнопки и результат */
+    .btn {
+      background: #25262b;
+      color: #e4e4e7;
+      border: 1px solid #373a40;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #2c2e33; }
+    
+    .status-text {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #909296;
+      text-align: center;
+    }
+    
+    .result-input {
+      width: 100%;
+      background: #141517;
+      border: 1px solid #373a40;
+      color: #5865f2;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 15px;
+      font-size: 14px;
+      outline: none;
+    }
 
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 15px var(--primary-glow);
-        }
-
-        main {
-            width: 100%;
-            max-width: 650px;
-            margin: auto 0;
-        }
-
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            position: relative;
-        }
-
-        .upload-area {
-            border: 2px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 50px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: rgba(255, 255, 255, 0.01);
-        }
-
-        .upload-area:hover, .upload-area.dragover {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.05);
-        }
-
-        .upload-icon {
-            width: 56px;
-            height: 56px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            color: var(--primary);
-        }
-
-        .upload-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .upload-desc {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        .hotkey-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: #d1d5db;
-        }
-
-        kbd {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .loading-state, .result-state {
-            display: none;
-        }
-
-        .spinner {
-            width: 44px;
-            height: 44px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .result-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--success);
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .reset-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.85rem;
-        }
-
-        .reset-btn:hover {
-            color: #fff;
-        }
-
-        .preview-container {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .preview-img {
-            width: 140px;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            flex-shrink: 0;
-            background: #000;
-        }
-
-        .link-details {
-            flex-grow: 1;
-        }
-
-        .input-group-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .input-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .url-input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 12px 14px;
-            color: #fff;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        .copy-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .copy-btn:hover {
-            background: var(--primary-hover);
-        }
-
-        .copied-toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--success);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .copied-toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-    </style>
+    /* Футер с ссылкой на GitHub */
+    .footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 14px;
+      color: #5c5f66;
+    }
+    .footer a {
+      color: #909296;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer a:hover {
+      color: #5865f2;
+      text-decoration: underline;
+    }
+    .hidden { display: none; }
+  </style>
 </head>
 <body>
 
-    <div class="background-glow"></div>
-
-    <header>
-        <a href="#" class="logo">
-            <div class="logo-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            </div>
-            Napka 
-        </a>
+  <div class="container">
+    <!-- Шапка в стиле hapka.lol -->
+    <header class="header">
+      <a href="#" class="brand">
+        ⚡ <span>Napka</span>
+      </a>
     </header>
 
-    <main>
-        <div class="card">
-            <!-- Зона загрузки -->
-            <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                </div>
-                <div class="upload-title">Перетащите картинку сюда</div>
-                <div class="upload-desc">Загрузка в репозиторий Napka</div>
-                <div class="hotkey-badge">
-                    Вставьте из буфера: <kbd>Ctrl</kbd> + <kbd>V</kbd>
-                </div>
-                <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
-            </div>
+    <!-- Основная карточка загрузки -->
+    <main class="card">
+      <h1 class="title">Загрузка файлов</h1>
+      
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <p>Перетащите картинку сюда или нажмите для выбора</p>
+      </div>
+      
+      <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFile(this.files[0])">
 
-            <!-- Индикатор загрузки -->
-            <div class="loading-state" id="loadingState">
-                <div class="spinner"></div>
-                <div style="text-align: center; font-weight: 500;" id="loadingText">Загрузка файла...</div>
-            </div>
-
-            <!-- Результат -->
-            <div class="result-state" id="resultState">
-                <div class="result-header">
-                    <div class="status-badge">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        Успешно загружено!
-                    </div>
-                    <button class="reset-btn" onclick="resetUpload()">+ Загрузить ещё</button>
-                </div>
-
-                <div class="preview-container">
-                    <img src="" id="previewImg" class="preview-img" alt="Превью">
-                    <div class="link-details">
-                        <div class="input-group-title">Прямая ссылка на файл</div>
-                        <div class="input-row">
-                            <input type="text" id="directUrl" class="url-input" readonly>
-                            <button class="copy-btn" onclick="copyUrl()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                                Копировать
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div id="status" class="status-text"></div>
+      <div id="result"></div>
     </main>
 
-    <div class="copied-toast" id="toast">Ссылка скопирована в буфер!</div>
+    <!-- Футер с ссылкой на GitHub -->
+    <footer class="footer">
+      <a href="https://github.com/nefryttttt/Napka" target="_blank" rel="noopener">GitHub</a>
+    </footer>
+  </div>
 
-    <script>
-       
-        const VERCEL_URL = 'https://napka-api.vercel.app/api/upload';
+  <script>
+    const API_URL = 'https://napka-api.vercel.app/api/upload';
+    const dropZone = document.getElementById('dropZone');
 
-        const dropZone = document.getElementById('dropZone');
-        const loadingState = document.getElementById('loadingState');
-        const resultState = document.getElementById('resultState');
-        const toast = document.getElementById('toast');
-        const loadingText = document.getElementById('loadingText');
+    // Drag & Drop события
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      }, false);
+    });
 
-        // Drag & Drop
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                dropZone.classList.add('dragover');
-            });
-        });
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+      }, false);
+    });
 
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('dragover');
-            });
-        });
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length > 0) handleFile(files[0]);
+    });
 
-        dropZone.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].type.startsWith('image/')) {
-                processFile(files[0]);
-            }
-        });
+    // Обработка и отправка файла на Vercel API
+    async function handleFile(file) {
+      if (!file) return;
 
-        // Ctrl + V
-        document.addEventListener('paste', (e) => {
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (let item of items) {
-                if (item.type.indexOf('image') !== -1) {
-                    const file = item.getAsFile();
-                    processFile(file);
-                    break;
-                }
-            }
-        });
+      const status = document.getElementById('status');
+      const result = document.getElementById('result');
+      status.innerText = 'Загрузка...';
+      result.innerHTML = '';
 
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) processFile(file);
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64Content = reader.result.split(',')[1];
+        const filename = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+
+        try {
+          const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filename: filename,
+              content: base64Content
+            })
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.url) {
+            status.innerText = 'Загрузка завершена!';
+            result.innerHTML = `
+              <input type="text" class="result-input" value="${data.url}" readonly onclick="this.select(); document.execCommand('copy'); alert('Ссылка скопирована!');">
+            `;
+          } else {
+            status.innerText = 'Ошибка: ' + (data.error || 'Не удалось загрузить');
+          }
+        } catch (err) {
+          status.innerText = 'Сетевая ошибка: ' + err.message;
         }
+      };
 
-        function processFile(file) {
-            dropZone.style.display = 'none';
-            loadingState.style.display = 'block';
-            loadingText.innerText = 'Отправка в репозиторий...';
-
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-
-            reader.onload = async function() {
-                const base64Content = reader.result.split(',')[1];
-                const fileName = 'img_' + Date.now() + '.' + file.name.split('.').pop();
-
-                try {
-                    const response = await fetch(VERCEL_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            filename: fileName,
-                            content: base64Content
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        showResult(data.url);
-                    } else {
-                        alert('Ошибка загрузки: ' + (data.error || 'Сбой сервера'));
-                        resetUpload();
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert('Сетевая ошибка.');
-                    resetUpload();
-                }
-            };
-        }
-
-        function showResult(url) {
-            loadingState.style.display = 'none';
-            resultState.style.display = 'block';
-
-            document.getElementById('previewImg').src = url;
-            document.getElementById('directUrl').value = url;
-
-            copyUrl(false);
-        }
-
-        function copyUrl(showToast = true) {
-            const input = document.getElementById('directUrl');
-            input.select();
-            navigator.clipboard.writeText(input.value);
-
-            if (showToast) {
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2000);
-            }
-        }
-
-        function resetUpload() {
-            resultState.style.display = 'none';
-            dropZone.style.display = 'block';
-            document.getElementById('fileInput').value = '';
-        }
-    </script>
+      reader.readAsDataURL(file);
+    }
+  </script>
 </body>
 </html>
